@@ -1,0 +1,8 @@
+{
+  "name": "EagleSearch - Sistema de Consultas",
+  "description": "Um sistema modular de consultas com gestão de créditos, módulos personalizados e integração dinâmica de APIs.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}

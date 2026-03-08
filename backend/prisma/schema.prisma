@@ -1,0 +1,212 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+  SUPER
+  GESTOR
+  VENDEDOR
+  CLIENTE
+}
+
+model Company {
+  id        String   @id @default(uuid())
+  name      String
+  cnpj      String?  @unique
+  balance   Float    @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  users     User[]
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(USER)
+  active    Boolean  @default(true) // Status da conta (ativo/inativo)
+  isAtivo   Boolean  @default(false) // Cliente Ativo vs Cliente de Consulta
+  balance   Float    @default(0)
+  
+  phone     String?
+  document  String?   // CPF ou CNPJ
+  region    String?   // Região/Estado
+  
+  companyId String?
+  company   Company? @relation(fields: [companyId], references: [id])
+
+  // Hierarquia
+  parentId  String?
+  parent    User?    @relation("UserHierarchy", fields: [parentId], references: [id])
+  children  User[]   @relation("UserHierarchy")
+
+  searchHistory SearchHistory[]
+  
+  // Relacionamentos de Processos e CRM
+  processesAsClient Process[] @relation("ClientProcesses")
+  processesAsOwner  Process[] @relation("OwnerProcesses")
+  crmLeads          CRMLead[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+  @@index([parentId])
+}
+
+enum BaseStatus {
+  ACTIVE
+  INACTIVE
+}
+
+model Module {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  icon        String
+  slug        String   @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  bases       Base[]
+  
+  @@index([slug])
+}
+
+model Base {
+  id          String     @id @default(uuid())
+  name        String
+  description String?
+  cost        Float
+  status      BaseStatus @default(ACTIVE)
+  baseUrl     String
+  method      String     @default("GET") // GET, POST
+  headers     Json?      // Headers customizados (ex: X-API-KEY, Authorization)
+  bodyParams  Json?      // Mapeamento de corpo para POST (ex: {"cpf": "{{doc}}"})
+  
+  moduleId    String
+  module      Module     @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  
+  @@index([moduleId])
+  @@index([status])
+}
+
+model SearchHistory {
+  id          String   @id @default(uuid())
+  query       String   // CPF, CNPJ, Placa, etc
+  moduleSlug  String   // Qual módulo foi usado
+  moduleName  String   // Nome do módulo
+  baseName    String   // Nome do provedor usado
+  cost        Float    // Quanto custou a consulta
+  result      Json     // Resultado completo da consulta
+  
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  companyId   String?
+  companyName String?  // Denormalizado para performance
+  
+  createdAt   DateTime @default(now())
+  
+  sharedLinks SharedLink[]
+  
+  @@index([userId])
+  @@index([companyId])
+  @@index([createdAt])
+  @@index([moduleSlug])
+}
+
+model SharedLink {
+  id              String        @id @default(uuid())
+  token           String        @unique @default(uuid())
+  expiresAt       DateTime      // Expira em 24h
+  accessCount     Int           @default(0)
+  
+  searchHistoryId String
+  searchHistory   SearchHistory @relation(fields: [searchHistoryId], references: [id], onDelete: Cascade)
+  
+  createdAt       DateTime      @default(now())
+  
+  @@index([token])
+  @@index([expiresAt])
+  @@index([searchHistoryId])
+}enum ProcessStatus {
+  ENVIADO
+  PENDENTE
+  EM_ANDAMENTO
+  CONCLUIDO
+  AGUARDANDO_DOCUMENTACAO
+  AGUARDANDO_PAGAMENTO
+}
+
+enum ServiceType {
+  LIMPEZA_CPF
+  LIMPEZA_CNPJ
+  BACEN
+  REVISIONAL
+  BUSCA_CAPITAL
+}
+
+model Process {
+  id          String        @id @default(uuid())
+  type        ServiceType
+  status      ProcessStatus @default(ENVIADO)
+  description String?
+  
+  // Valores
+  setupFee    Float         @default(997.00) // Taxa inicial padrão
+  debtValue   Float?        // Valor da dívida (para calcular os 10%)
+  totalFee    Float?        // Valor final dos honorários
+  
+  // Relacionamentos
+  clientId    String
+  client      User          @relation("ClientProcesses", fields: [clientId], references: [id])
+  
+  ownerId     String        // Vendedor ou Gestor responsável
+  owner       User          @relation("OwnerProcesses", fields: [ownerId], references: [id])
+  
+  companyId   String?
+  
+  documents   Json?         // Links para documentos (ex: [{name: "Procuração", url: "..."}])
+  sugestoes   Json?         // Comentários do cliente e equipe
+  
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([clientId])
+  @@index([ownerId])
+  @@index([status])
+}
+
+model CRMLead {
+  id          String   @id @default(uuid())
+  name        String
+  email       String?
+  phone       String?
+  document    String?  // CPF/CNPJ
+  
+  funnel      String   @default("ORCAMENTO") // ORCAMENTO, INTERESSADOS, FECHADO
+  proposta    Int?     // 1, 2, 3
+  
+  notes       String?
+  
+  vendedorId  String
+  vendedor    User     @relation(fields: [vendedorId], references: [id])
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([vendedorId])
+  @@index([funnel])
+}
