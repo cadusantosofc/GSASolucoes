@@ -56,5 +56,6 @@ export const AVAILABLE_ICONS = [
   { id: 'MoreHorizontal', icon: <MoreHorizontal /> }
 ];
 
-// Use VITE_API_URL do .env (Vite prefix)
-export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+// Garante que /api sempre está no final, independente do valor no .env
+const _base = (import.meta.env.VITE_API_URL || 'http://localhost:3001').replace(/\/api\/?$/, '');
+export const API_URL = `${_base}/api`;
