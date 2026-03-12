@@ -23,7 +23,7 @@ GITHUB_TOKEN="github_pat_11A6X53JQ05X7ljSGYQ4fk_IIjbwZU45vaVYSwpWmMIZ4UW7thLAKnp
 REPO_URL="github.com/cadusantosofc/GSASolucoes.git"
 
 # Diretório de Instalação (Conforme solicitado)
-PROJECT_DIR="/home/deploy/gsasolucoes"
+PROJECT_DIR="/home/deploy/buscas"
 
 # Funções de Status
 print_status() {
