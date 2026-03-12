@@ -26,8 +26,11 @@ const authLimiter = rateLimit({
 // Segurança: Headers HTTP
 app.use(helmet());
 
-// Segurança: CORS (ajuste para a URL do seu frontend em produção)
-app.use(cors());
+// Segurança: CORS (Apenas frontend em nuvem em produção)
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'https://app.gsacreditus.com.br',
+  credentials: true
+}));
 
 // Parsing de JSON
 app.use(express.json());

@@ -42,7 +42,7 @@ export const AdminBases: React.FC<AdminBasesProps> = ({ bases, setBases, modules
   const loadBases = async () => {
     try {
       const token = localStorage.getItem('gsa_token');
-      const response = await fetch('http://localhost:3001/api/bases', {
+      const response = await fetch('https://api.gsacreditus.com.br/api/bases', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -117,7 +117,7 @@ export const AdminBases: React.FC<AdminBasesProps> = ({ bases, setBases, modules
 
       if (editingBase) {
         // Editar base existente
-        const response = await fetch(`http://localhost:3001/api/bases/${editingBase.id}`, {
+        const response = await fetch(`https://api.gsacreditus.com.br/api/bases/${editingBase.id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -138,7 +138,7 @@ export const AdminBases: React.FC<AdminBasesProps> = ({ bases, setBases, modules
         } : b));
       } else {
         // Criar nova base
-        const response = await fetch('http://localhost:3001/api/bases', {
+        const response = await fetch('https://api.gsacreditus.com.br/api/bases', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -182,7 +182,7 @@ export const AdminBases: React.FC<AdminBasesProps> = ({ bases, setBases, modules
 
     try {
       const token = localStorage.getItem('gsa_token');
-      const response = await fetch(`http://localhost:3001/api/bases/${baseToDelete.id}`, {
+      const response = await fetch(`https://api.gsacreditus.com.br/api/bases/${baseToDelete.id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -370,7 +370,7 @@ export const AdminBases: React.FC<AdminBasesProps> = ({ bases, setBases, modules
                 onClick={() => setIsCurlModalOpen(true)}
                 className="px-4 py-2 bg-neutral-900 border border-neutral-800 rounded-lg text-[10px] font-black uppercase tracking-widest text-neutral-400 hover:text-white hover:border-blue-600 transition-all flex items-center gap-2"
               >
-                 {ICONS.Code || <span>&lt;/&gt;</span>} Importar cURL
+                 <span>&lt;/&gt;</span> Importar cURL
               </button>
             </div>
             <form onSubmit={handleSave} className="space-y-6">

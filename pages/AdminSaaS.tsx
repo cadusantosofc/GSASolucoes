@@ -50,7 +50,7 @@ export const AdminSaaS: React.FC<AdminSaaSProps> = ({ users, setUsers, companies
       if (!token) return;
 
       try {
-        const res = await fetch('http://localhost:3001/api/users/list', {
+        const res = await fetch('https://api.gsacreditus.com.br/api/users/list', {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.ok) {
@@ -86,7 +86,7 @@ export const AdminSaaS: React.FC<AdminSaaSProps> = ({ users, setUsers, companies
     const token = localStorage.getItem('gsa_token');
 
     try {
-      const res = await fetch('http://localhost:3001/api/auth/register', {
+      const res = await fetch('https://api.gsacreditus.com.br/api/auth/register', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

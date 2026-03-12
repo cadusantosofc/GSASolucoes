@@ -49,7 +49,7 @@ export const ModuleDetail: React.FC<ModuleDetailProps> = ({ modules, bases, user
     try {
       const token = localStorage.getItem('gsa_token');
       
-      const response = await fetch('http://localhost:3001/api/modules/search', {
+      const response = await fetch('https://api.gsacreditus.com.br/api/modules/search', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

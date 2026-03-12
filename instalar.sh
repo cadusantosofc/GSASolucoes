@@ -103,45 +103,40 @@ install_redis() {
 }
 
 # ----------------------------------------
-# EXECUÇÃO PRINCIPAL
+# FUNÇÕES DE EXECUÇÃO
 # ----------------------------------------
 
-if [ "$EUID" -ne 0 ]; then
-    print_error "Execute como root (sudo su)"
-    exit 1
-fi
+executar_instalar() {
+    TOTAL_STEPS=10
+    show_step 1 "PREPARAÇÃO"
+    apt update && apt upgrade -y
+    apt install -y curl git build-essential openssl
+    mkdir -p "$PROJECT_DIR"
+    setup_swap
 
-TOTAL_STEPS=10
+    show_step 2 "FERRAMENTAS"
+    install_nodejs
+    install_postgresql
+    install_redis
 
-show_step 1 "PREPARAÇÃO"
-apt update && apt upgrade -y
-apt install -y curl git build-essential openssl redis-server
-mkdir -p "$PROJECT_DIR"
-setup_swap
+    show_step 3 "DOWNLOAD DO REPOSITÓRIO"
+    if [ -d "$PROJECT_DIR/.git" ]; then
+        print_status "Diretório já é um repositório git, atualizando..."
+        cd "$PROJECT_DIR"
+        git reset --hard
+        git pull https://$GITHUB_TOKEN@$REPO_URL
+    else
+        print_status "Clonando repositório para $PROJECT_DIR..."
+        cd /
+        rm -rf "$PROJECT_DIR"
+        git clone https://$GITHUB_TOKEN@$REPO_URL "$PROJECT_DIR"
+        cd "$PROJECT_DIR"
+    fi
 
-show_step 2 "FERRAMENTAS"
-install_nodejs
-install_postgresql
-install_redis
-
-show_step 3 "DOWNLOAD DO REPOSITÓRIO"
-if [ -d "$PROJECT_DIR/.git" ]; then
-    print_status "Diretório já é um repositório git, atualizando..."
-    cd "$PROJECT_DIR"
-    git reset --hard
-    git pull https://$GITHUB_TOKEN@$REPO_URL
-else
-    print_status "Clonando repositório para $PROJECT_DIR..."
-    cd / # Move para fora para evitar erro de diretório deletado
-    rm -rf "$PROJECT_DIR"
-    git clone https://$GITHUB_TOKEN@$REPO_URL "$PROJECT_DIR"
-    cd "$PROJECT_DIR"
-fi
-
-show_step 4 "CONFIGURAÇÃO BACKEND"
-cd "$PROJECT_DIR/backend"
-print_status "Criando .env do Backend..."
-cat > .env << EOF
+    show_step 4 "CONFIGURAÇÃO BACKEND"
+    cd "$PROJECT_DIR/backend"
+    print_status "Criando .env do Backend..."
+    cat > .env << EOF
 DATABASE_URL="postgresql://whazing:rpYZtq1S3oq4s8Zj@localhost:5432/consultas_buscas?schema=public"
 JWT_SECRET="dFVtQhh+x+UTFMfCCZuIkAbgdy4uFGT5koU7jyM2Obg="
 JWT_EXPIRES_IN="15d"
@@ -151,27 +146,26 @@ REDIS_URL="redis://:rpYZtq1S3oq4s8Zj@localhost:6383/2"
 BACKEND_URL="https://api.gsacreditus.com.br"
 FRONTEND_URL="https://app.gsacreditus.com.br"
 EOF
-pnpm install
+    pnpm install
 
-show_step 5 "DATABASE"
-npx prisma generate
-npx prisma db push --accept-data-loss # Sincroniza o schema sem exigir histórico de migrações limpo
+    show_step 5 "DATABASE"
+    npx prisma generate
+    npx prisma db push --accept-data-loss
 
-show_step 6 "BUILD BACKEND"
-pnpm run build
+    show_step 6 "BUILD BACKEND"
+    pnpm run build
 
-show_step 7 "FRONTEND"
-cd "$PROJECT_DIR"
-print_status "Configurando .env do Frontend..."
-cat > .env << EOF
+    show_step 7 "FRONTEND"
+    cd "$PROJECT_DIR"
+    print_status "Configurando .env do Frontend..."
+    cat > .env << EOF
 VITE_API_URL="https://api.gsacreditus.com.br"
 EOF
-pnpm install
-pnpm run build
+    pnpm install
+    pnpm run build
 
-show_step 8 "SERVIÇO FRONTEND (VITE PREVIEW)"
-# Como não temos Caddy/Nginx, vamos rodar o frontend usando o preview do vite ou serve
-cat > /etc/systemd/system/gsa-front.service << EOF
+    show_step 8 "SERVIÇO FRONTEND (VITE PREVIEW)"
+    cat > /etc/systemd/system/gsa-front.service << EOF
 [Unit]
 Description=GSA Solucoes Frontend
 After=network.target
@@ -184,20 +178,20 @@ Restart=always
 [Install]
 WantedBy=multi-user.target
 EOF
-systemctl daemon-reload
-systemctl enable gsa-front
-systemctl start gsa-front
+    systemctl daemon-reload
+    systemctl enable gsa-front
+    systemctl start gsa-front
 
-print_status "Configuração para Cloudflare Tunnel:"
-echo "----------------------------------------"
-echo "Aponte seu túnel do Cloudflare para:"
-echo "Frontend: http://localhost:8080"
-echo "Backend:  http://localhost:3001"
-echo "----------------------------------------"
-sleep 5
+    print_status "Configuração para Cloudflare Tunnel:"
+    echo "----------------------------------------"
+    echo "Aponte seu túnel do Cloudflare para:"
+    echo "Frontend: http://localhost:8080"
+    echo "Backend:  http://localhost:3001"
+    echo "----------------------------------------"
+    sleep 5
 
-show_step 9 "SERVIÇO SYSTEMD"
-cat > /etc/systemd/system/gsa.service << EOF
+    show_step 9 "SERVIÇO SYSTEMD BACKEND"
+    cat > /etc/systemd/system/gsa.service << EOF
 [Unit]
 Description=GSA Solucoes Backend
 After=network.target postgresql.service
@@ -211,15 +205,70 @@ Environment=NODE_ENV=production
 [Install]
 WantedBy=multi-user.target
 EOF
-systemctl daemon-reload
-systemctl enable gsa
+    systemctl daemon-reload
+    systemctl enable gsa
+    systemctl start gsa
 
-show_step 10 "FINALIZAÇÃO"
-chown -R www-data:www-data "$PROJECT_DIR"
-systemctl restart gsa
+    show_step 10 "FINALIZAÇÃO"
+    chown -R www-data:www-data "$PROJECT_DIR"
+    systemctl restart gsa
+    systemctl restart gsa-front
 
-print_header "INSTALAÇÃO CONCLUÍDA!"
-echo "Localização: $PROJECT_DIR"
-echo "Backend: systemctl status gsa"
-echo "Logs: journalctl -u gsa -f"
-echo "✅ Pronto!"
+    print_header "INSTALAÇÃO CONCLUÍDA!"
+    echo "Localização: $PROJECT_DIR"
+    echo "Backend: systemctl status gsa"
+    echo "Frontend: systemctl status gsa-front"
+    echo "✅ Pronto!"
+}
+
+executar_atualizar() {
+    print_header "🔄 ATUALIZANDO SISTEMA..."
+    cd "$PROJECT_DIR"
+    
+    print_status "Baixando atualizações do Git..."
+    git reset --hard
+    git pull https://$GITHUB_TOKEN@$REPO_URL
+    
+    print_status "Atualizando dependências e build do Backend..."
+    cd "$PROJECT_DIR/backend"
+    pnpm install
+    npx prisma generate
+    pnpm run build
+    
+    print_status "Atualizando dependências e build do Frontend..."
+    cd "$PROJECT_DIR"
+    pnpm install
+    pnpm run build
+    
+    print_status "Reiniciando serviços..."
+    systemctl daemon-reload
+    systemctl restart gsa
+    systemctl restart gsa-front
+    
+    print_header "✅ ATUALIZAÇÃO CONCLUÍDA COM SUCESSO!"
+}
+
+# ----------------------------------------
+# EXECUÇÃO PRINCIPAL (MENU)
+# ----------------------------------------
+
+if [ "$EUID" -ne 0 ]; then
+    print_error "Execute como root (sudo su)"
+    exit 1
+fi
+
+clear
+print_header "SISTEMA GSA SOLUÇÕES - CONSULTAS"
+echo -e "Escolha uma opção:"
+echo -e "${GREEN}1)${NC} Instalar do Zero (Ubuntu 24)"
+echo -e "${GREEN}2)${NC} Atualizar Sistema Existente"
+echo -e "${RED}0)${NC} Sair"
+echo ""
+read -p "Opção: " OPTION
+
+case $OPTION in
+    1) executar_instalar ;;
+    2) executar_atualizar ;;
+    0) exit 0 ;;
+    *) print_error "Opção Inválida"; exit 1 ;;
+esac

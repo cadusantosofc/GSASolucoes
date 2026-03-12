@@ -36,7 +36,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ user: initialUser, balance: in
         const headers: any = { 'Authorization': `Bearer ${token}` };
         if (impId) headers['X-Impersonate-Company-Id'] = impId;
 
-        const response = await fetch('http://localhost:3001/api/users/me', { headers });
+        const response = await fetch('https://api.gsacreditus.com.br/api/users/me', { headers });
 
         if (!response.ok) return;
 
@@ -67,7 +67,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ user: initialUser, balance: in
       const fetchCompanies = async () => {
         try {
           const token = localStorage.getItem('gsa_token');
-          const response = await fetch('http://localhost:3001/api/users/companies', {
+          const response = await fetch('https://api.gsacreditus.com.br/api/users/companies', {
             headers: { 'Authorization': `Bearer ${token}` }
           });
           if (response.ok) {

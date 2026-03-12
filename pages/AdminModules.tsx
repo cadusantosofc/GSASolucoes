@@ -25,7 +25,7 @@ export const AdminModules: React.FC<AdminModulesProps> = ({ modules, setModules 
   const loadModules = async () => {
     try {
       const token = localStorage.getItem('gsa_token');
-      const response = await fetch('http://localhost:3001/api/modules', {
+      const response = await fetch('https://api.gsacreditus.com.br/api/modules', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -74,7 +74,7 @@ export const AdminModules: React.FC<AdminModulesProps> = ({ modules, setModules 
 
       if (editingModule) {
         // Editar módulo existente
-        const response = await fetch(`http://localhost:3001/api/modules/${editingModule.id}`, {
+        const response = await fetch(`https://api.gsacreditus.com.br/api/modules/${editingModule.id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -92,7 +92,7 @@ export const AdminModules: React.FC<AdminModulesProps> = ({ modules, setModules 
         setModules(prev => prev.map(m => m.id === editingModule.id ? updatedModule : m));
       } else {
         // Criar novo módulo
-        const response = await fetch('http://localhost:3001/api/modules', {
+        const response = await fetch('https://api.gsacreditus.com.br/api/modules', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -133,7 +133,7 @@ export const AdminModules: React.FC<AdminModulesProps> = ({ modules, setModules 
 
     try {
       const token = localStorage.getItem('gsa_token');
-      const response = await fetch(`http://localhost:3001/api/modules/${moduleToDelete.id}`, {
+      const response = await fetch(`https://api.gsacreditus.com.br/api/modules/${moduleToDelete.id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`
