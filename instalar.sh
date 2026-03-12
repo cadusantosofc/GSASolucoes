@@ -49,7 +49,6 @@ print_header() {
 }
 
 show_step() {
-    clear
     print_header "🚀 PASSO $1/$TOTAL_STEPS: $2"
     echo ""
 }
@@ -76,15 +75,31 @@ install_nodejs() {
     npm install -g pnpm
 }
 
+# DATABASE CONFIGURATION
 install_postgresql() {
-    print_status "Instalando PostgreSQL..."
+    print_status "Instalando e Configurando PostgreSQL..."
     apt install -y postgresql postgresql-contrib
     systemctl start postgresql
     systemctl enable postgresql
+
+    # Configuração de usuário e banco dedicado
+    sudo -u postgres psql -c "CREATE USER whazing WITH PASSWORD 'rpYZtq1S3oq4s8Zj';" 2>/dev/null || true
+    sudo -u postgres psql -c "ALTER USER whazing WITH PASSWORD 'rpYZtq1S3oq4s8Zj';"
+    sudo -u postgres psql -c "ALTER USER whazing WITH SUPERUSER;"
     
-    sudo -u postgres psql -c "CREATE USER consulta WITH PASSWORD 'consulta';" 2>/dev/null || true
-    sudo -u postgres psql -c "ALTER USER consulta WITH PASSWORD 'consulta';"
-    sudo -u postgres psql -c "CREATE DATABASE consulta OWNER consulta;" 2>/dev/null || true
+    sudo -u postgres psql -c "CREATE DATABASE consultas_buscas OWNER whazing;" 2>/dev/null || true
+    sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE consultas_buscas TO whazing;"
+}
+
+install_redis() {
+    print_status "Instalando e Configurando Redis na porta 6383..."
+    apt install -y redis-server
+    sed -i 's/port 6379/port 6383/' /etc/redis/redis.conf
+    # Se houver senha configurada
+    if [ ! -z "rpYZtq1S3oq4s8Zj" ]; then
+        sed -i 's/# requirepass foobared/requirepass rpYZtq1S3oq4s8Zj/' /etc/redis/redis.conf
+    fi
+    systemctl restart redis-server
 }
 
 # ----------------------------------------
@@ -100,13 +115,14 @@ TOTAL_STEPS=10
 
 show_step 1 "PREPARAÇÃO"
 apt update && apt upgrade -y
-apt install -y curl git build-essential openssl nginx redis-server
+apt install -y curl git build-essential openssl redis-server
 mkdir -p "$PROJECT_DIR"
 setup_swap
 
 show_step 2 "FERRAMENTAS"
 install_nodejs
 install_postgresql
+install_redis
 
 show_step 3 "DOWNLOAD DO REPOSITÓRIO"
 if [ -d "$PROJECT_DIR/.git" ]; then
@@ -126,48 +142,59 @@ show_step 4 "CONFIGURAÇÃO BACKEND"
 cd "$PROJECT_DIR/backend"
 print_status "Criando .env do Backend..."
 cat > .env << EOF
-DATABASE_URL="postgresql://consulta:consulta@localhost:5432/consulta?schema=public"
-JWT_SECRET="$(openssl rand -base64 32)"
-JWT_EXPIRES_IN="7d"
+DATABASE_URL="postgresql://whazing:rpYZtq1S3oq4s8Zj@localhost:5432/consultas_buscas?schema=public"
+JWT_SECRET="dFVtQhh+x+UTFMfCCZuIkAbgdy4uFGT5koU7jyM2Obg="
+JWT_EXPIRES_IN="15d"
 PORT=3001
 NODE_ENV=production
+REDIS_URL="redis://:rpYZtq1S3oq4s8Zj@localhost:6383/2"
+BACKEND_URL="https://api.gsacreditus.com.br"
+FRONTEND_URL="https://app.gsacreditus.com.br"
 EOF
 pnpm install
 
 show_step 5 "DATABASE"
 npx prisma generate
-npx prisma migrate deploy
+npx prisma db push --accept-data-loss # Sincroniza o schema sem exigir histórico de migrações limpo
 
 show_step 6 "BUILD BACKEND"
 pnpm run build
 
 show_step 7 "FRONTEND"
 cd "$PROJECT_DIR"
+print_status "Configurando .env do Frontend..."
+cat > .env << EOF
+VITE_API_URL="https://api.gsacreditus.com.br"
+EOF
 pnpm install
 pnpm run build
 
-show_step 8 "NGINX"
-cat > /etc/nginx/sites-available/gsa << EOF
-server {
-    listen 80;
-    server_name _;
-    root $PROJECT_DIR/dist;
-    index index.html;
-    location / { try_files \$uri \$uri/ /index.html; }
-    location /api {
-        proxy_pass http://localhost:3001;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade \$http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-    }
-}
+show_step 8 "SERVIÇO FRONTEND (VITE PREVIEW)"
+# Como não temos Caddy/Nginx, vamos rodar o frontend usando o preview do vite ou serve
+cat > /etc/systemd/system/gsa-front.service << EOF
+[Unit]
+Description=GSA Solucoes Frontend
+After=network.target
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=$PROJECT_DIR
+ExecStart=/usr/bin/pnpm preview --port 8080 --host
+Restart=always
+[Install]
+WantedBy=multi-user.target
 EOF
-ln -sf /etc/nginx/sites-available/gsa /etc/nginx/sites-enabled/
-rm -f /etc/nginx/sites-enabled/default
-nginx -t && systemctl reload nginx
+systemctl daemon-reload
+systemctl enable gsa-front
+systemctl start gsa-front
+
+print_status "Configuração para Cloudflare Tunnel:"
+echo "----------------------------------------"
+echo "Aponte seu túnel do Cloudflare para:"
+echo "Frontend: http://localhost:8080"
+echo "Backend:  http://localhost:3001"
+echo "----------------------------------------"
+sleep 5
 
 show_step 9 "SERVIÇO SYSTEMD"
 cat > /etc/systemd/system/gsa.service << EOF

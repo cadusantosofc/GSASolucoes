@@ -3,6 +3,7 @@ import * as AuthService from '../services/AuthService';
 import { loginSchema, registerSchema } from '../schemas/authSchemas';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
+import prisma from '../lib/prisma';
 
 export const register = async (req: Request, res: Response) => {
   try {
