@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Sidebar } from './components/Sidebar';
@@ -19,6 +18,7 @@ import { LandingPage } from './pages/LandingPage';
 import { LegalPage } from './pages/Legal';
 import { Module, Base, SearchHistory, User, Company, SharedLink } from './types';
 import { Menu } from 'lucide-react';
+import { API_URL, ICONS } from './constants'; // Added ICONS and API_URL import
 
 const App: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -61,10 +61,10 @@ const App: React.FC = () => {
 
           // Paralelizar requisições para performance
           const [modsRes, basesRes, userRes] = await Promise.all([
-             fetch('http://localhost:3001/api/modules', { headers }),
-             fetch('http://localhost:3001/api/bases', { headers }),
+             fetch(`${API_URL}/modules`, { headers }),
+             fetch(`${API_URL}/bases`, { headers }),
              // Usar /api/users/me conforme userRoutes
-             fetch('http://localhost:3001/api/users/me', { headers })
+             fetch(`${API_URL}/users/me`, { headers })
           ]);
 
           if (modsRes.ok) setModules(await modsRes.json());
@@ -137,8 +137,13 @@ const App: React.FC = () => {
         
         <Route path="/*" element={
           isAuthenticated && currentUser ? (
-            <div className="flex min-h-screen bg-[#050505] text-neutral-200 relative overflow-x-hidden">
-              {isSidebarOpen && <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[45] lg:hidden" onClick={() => setIsSidebarOpen(false)} />}
+            <div className="flex min-h-screen bg-[#050505] text-neutral-200">
+              {/* Overlay mobile */}
+              {isSidebarOpen && (
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[45] lg:hidden" onClick={() => setIsSidebarOpen(false)} />
+              )}
+
+              {/* Sidebar — no desktop ocupa espaço no flex, no mobile é fixed overlay */}
               <Sidebar 
                 user={currentUser} 
                 balance={getUserBalance(currentUser)}
@@ -146,7 +151,10 @@ const App: React.FC = () => {
                 onClose={() => setIsSidebarOpen(false)}
                 onLogout={handleLogout}
               />
-              <main className="flex-1 lg:pl-64 w-full min-w-0 transition-all duration-300">
+
+              {/* Conteúdo principal — flex-1 pega o espaço que sobra após o sidebar */}
+              <div className="flex-1 flex flex-col min-h-screen min-w-0">
+                {/* Header mobile */}
                 <header className="lg:hidden flex items-center justify-between p-4 bg-[#0a0a0a] border-b border-neutral-900 sticky top-0 z-40">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-black text-sm">G</div>
@@ -154,38 +162,42 @@ const App: React.FC = () => {
                   </div>
                   <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-neutral-400 hover:text-white"><Menu /></button>
                 </header>
-                <div className="p-4 md:p-8 max-w-[1600px] mx-auto">
-                  <Routes>
-                    <Route path="/dashboard" element={<Dashboard user={currentUser} balance={getUserBalance(currentUser)} modules={modules} history={history} bases={bases} />} />
-                    <Route path="/consultations" element={<Consultations modules={modules} bases={bases} />} />
-                    <Route path="/consultations/:slug" element={
-                      <ModuleDetail 
-                        modules={modules} 
-                        bases={bases} 
-                        user={currentUser} 
-                        balance={getUserBalance(currentUser)}
-                        updateBalance={(amt) => updateSaaSSaldo(amt, currentUser.id)}
-                        addHistory={(item) => {
-                          const company = currentUser.companyId ? companies.find(c => c.id === currentUser.companyId) : null;
-                          setHistory(prev => [{ ...item, companyName: company?.name }, ...prev]);
-                        }}
-                      />
-                    } />
-                    <Route path="/history" element={<HistoryPage history={history} sharedLinks={sharedLinks} setSharedLinks={setSharedLinks} currentUser={currentUser} />} />
-                    <Route path="/processes" element={<ProcessManagement />} />
-                    <Route path="/recharge" element={<Recharge updateSaldo={updateSaaSSaldo} currentUser={currentUser} />} />
-                    <Route path="/profile" element={<Profile user={currentUser} updateProfile={(upd) => {
-                      setCurrentUser(prev => prev ? ({...prev, ...upd}) : null);
-                      setUsers(prev => prev.map(u => u.id === currentUser.id ? {...u, ...upd} : u));
-                    }} />} />
-                    <Route path="/admin/saas" element={<AdminSaaS users={users} setUsers={setUsers} companies={companies} setCompanies={setCompanies} isGlobal={true} />} />
-                    <Route path="/admin/team" element={<AdminSaaS users={users} setUsers={setUsers} companies={companies} setCompanies={setCompanies} isGlobal={false} />} />
-                    <Route path="/admin/modules" element={<AdminModules modules={modules} setModules={setModules} />} />
-                    <Route path="/admin/bases" element={<AdminBases bases={bases} setBases={setBases} modules={modules} />} />
-                    <Route path="*" element={<Navigate to="/dashboard" />} />
-                  </Routes>
-                </div>
-              </main>
+
+                {/* Área das páginas */}
+                <main className="flex-1 p-4 md:p-8">
+                  <div className="max-w-[1600px] mx-auto">
+                    <Routes>
+                      <Route path="/dashboard" element={<Dashboard user={currentUser} balance={getUserBalance(currentUser)} modules={modules} history={history} bases={bases} />} />
+                      <Route path="/consultations" element={<Consultations modules={modules} bases={bases} />} />
+                      <Route path="/consultations/:slug" element={
+                        <ModuleDetail 
+                          modules={modules} 
+                          bases={bases} 
+                          user={currentUser} 
+                          balance={getUserBalance(currentUser)}
+                          updateBalance={(amt) => updateSaaSSaldo(amt, currentUser.id)}
+                          addHistory={(item) => {
+                            const company = currentUser.companyId ? companies.find(c => c.id === currentUser.companyId) : null;
+                            setHistory(prev => [{ ...item, companyName: company?.name }, ...prev]);
+                          }}
+                        />
+                      } />
+                      <Route path="/history" element={<HistoryPage history={history} sharedLinks={sharedLinks} setSharedLinks={setSharedLinks} currentUser={currentUser} />} />
+                      <Route path="/processes" element={<ProcessManagement />} />
+                      <Route path="/recharge" element={<Recharge updateSaldo={updateSaaSSaldo} currentUser={currentUser} />} />
+                      <Route path="/profile" element={<Profile user={currentUser} updateProfile={(upd) => {
+                        setCurrentUser(prev => prev ? ({...prev, ...upd}) : null);
+                        setUsers(prev => prev.map(u => u.id === currentUser.id ? {...u, ...upd} : u));
+                      }} />} />
+                      <Route path="/admin/saas" element={<AdminSaaS users={users} setUsers={setUsers} companies={companies} setCompanies={setCompanies} isGlobal={true} />} />
+                      <Route path="/admin/team" element={<AdminSaaS users={users} setUsers={setUsers} companies={companies} setCompanies={setCompanies} isGlobal={false} />} />
+                      <Route path="/admin/modules" element={<AdminModules modules={modules} setModules={setModules} />} />
+                      <Route path="/admin/bases" element={<AdminBases bases={bases} setBases={setBases} modules={modules} />} />
+                      <Route path="*" element={<Navigate to="/dashboard" />} />
+                    </Routes>
+                  </div>
+                </main>
+              </div>
             </div>
           ) : <Navigate to="/login" />
         } />

@@ -26,9 +26,24 @@ const authLimiter = rateLimit({
 // Segurança: Headers HTTP
 app.use(helmet());
 
-// Segurança: CORS (Apenas frontend em nuvem em produção)
+// Segurança: CORS (Permite local para dev e origens do .env)
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  'https://app.gsacreditus.com.br',
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'http://localhost:8080'
+].filter(Boolean); // Remove nulos caso FRONTEND_URL não esteja definido
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'https://app.gsacreditus.com.br',
+  origin: (origin, callback) => {
+    // Se não houver origin (ex: mobile ou ferramentas como Postman) ou se estiver na lista
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS não permitido para esta origem'));
+    }
+  },
   credentials: true
 }));
 

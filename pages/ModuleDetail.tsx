@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Module, Base, User, SearchHistory } from '../types';
-import { ICONS } from '../constants';
+import { ICONS, API_URL } from '../constants';
 import { DataRenderer } from '../components/DataRenderer';
 import { printConsultation } from '../utils/printHelper';
 import { Printer } from 'lucide-react';
@@ -49,7 +49,7 @@ export const ModuleDetail: React.FC<ModuleDetailProps> = ({ modules, bases, user
     try {
       const token = localStorage.getItem('gsa_token');
       
-      const response = await fetch('https://api.gsacreditus.com.br/api/modules/search', {
+      const response = await fetch(`${API_URL}/modules/search`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

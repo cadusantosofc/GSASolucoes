@@ -1,7 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { ICONS } from '../constants';
+import { ICONS, API_URL } from '../constants';
 import { User as UserType } from '../types';
 import { X, CreditCard, Users, User, LogOut, Info, Settings, ChevronDown, Building, FileText } from 'lucide-react';
 import { Company } from '../types';
@@ -36,7 +36,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ user: initialUser, balance: in
         const headers: any = { 'Authorization': `Bearer ${token}` };
         if (impId) headers['X-Impersonate-Company-Id'] = impId;
 
-        const response = await fetch('https://api.gsacreditus.com.br/api/users/me', { headers });
+        const response = await fetch(`${API_URL}/users/me`, { headers });
 
         if (!response.ok) return;
 
@@ -67,7 +67,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ user: initialUser, balance: in
       const fetchCompanies = async () => {
         try {
           const token = localStorage.getItem('gsa_token');
-          const response = await fetch('https://api.gsacreditus.com.br/api/users/companies', {
+          const response = await fetch(`${API_URL}/users/companies`, {
             headers: { 'Authorization': `Bearer ${token}` }
           });
           if (response.ok) {
@@ -123,7 +123,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ user: initialUser, balance: in
   ];
 
   return (
-    <aside className={`fixed left-0 top-0 h-full w-64 bg-[#080808] border-r border-neutral-900 flex flex-col z-50 transition-transform lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+    <aside className={`
+      fixed lg:sticky lg:top-0
+      left-0 top-0
+      h-full lg:h-screen
+      w-64 shrink-0
+      bg-[#080808] border-r border-neutral-900
+      flex flex-col
+      z-50 transition-transform duration-300
+      lg:translate-x-0
+      ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+    `}>
       <div className="p-8 flex flex-col h-full overflow-hidden">
         {/* Header com Logo e Seleção de Empresa (para SUPER) */}
         <div className="mb-10 shrink-0">

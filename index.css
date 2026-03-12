@@ -15,6 +15,13 @@ body {
   background-color: #050505;
 }
 
+/* Layout principal: empurra o conteúdo para fora do sidebar */
+@media (min-width: 1024px) {
+  .sidebar-offset {
+    margin-left: 256px; /* w-64 = 256px */
+  }
+}
+
 /* Scrollbar customizada */
 .custom-scrollbar::-webkit-scrollbar {
   width: 8px;

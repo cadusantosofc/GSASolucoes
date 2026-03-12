@@ -160,7 +160,7 @@ EOF
     cd "$PROJECT_DIR"
     print_status "Configurando .env do Frontend..."
     cat > .env << EOF
-VITE_API_URL="https://api.gsacreditus.com.br"
+VITE_API_URL="https://api.gsacreditus.com.br/api"
 EOF
     pnpm install
     pnpm run build
@@ -253,6 +253,12 @@ EOF
     
     print_status "Atualizando dependências e build do Frontend..."
     cd "$PROJECT_DIR"
+    
+    # Atualizar .env do Frontend
+    cat > .env << EOF
+VITE_API_URL="https://api.gsacreditus.com.br/api"
+EOF
+
     pnpm install
     pnpm run build
     

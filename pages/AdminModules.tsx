@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Module } from '../types';
-import { ICONS, AVAILABLE_ICONS } from '../constants';
+import { ICONS, AVAILABLE_ICONS, API_URL } from '../constants';
 
 interface AdminModulesProps {
   modules: Module[];
@@ -92,7 +92,7 @@ export const AdminModules: React.FC<AdminModulesProps> = ({ modules, setModules 
         setModules(prev => prev.map(m => m.id === editingModule.id ? updatedModule : m));
       } else {
         // Criar novo módulo
-        const response = await fetch('https://api.gsacreditus.com.br/api/modules', {
+        const response = await fetch(`${API_URL}/modules`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

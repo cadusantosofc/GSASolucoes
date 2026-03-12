@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Base, Module } from '../types';
-import { ICONS } from '../constants';
+import { ICONS, API_URL } from '../constants';
 import { VariableInserter } from '../components/VariableInserter';
 
 interface AdminBasesProps {
@@ -42,7 +42,7 @@ export const AdminBases: React.FC<AdminBasesProps> = ({ bases, setBases, modules
   const loadBases = async () => {
     try {
       const token = localStorage.getItem('gsa_token');
-      const response = await fetch('https://api.gsacreditus.com.br/api/bases', {
+      const response = await fetch(`${API_URL}/bases`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -138,7 +138,7 @@ export const AdminBases: React.FC<AdminBasesProps> = ({ bases, setBases, modules
         } : b));
       } else {
         // Criar nova base
-        const response = await fetch('https://api.gsacreditus.com.br/api/bases', {
+        const response = await fetch(`${API_URL}/bases`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

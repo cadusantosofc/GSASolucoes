@@ -1,8 +1,8 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { User } from '../types';
 import { Mail, Lock, Eye, EyeOff, ShieldCheck, ArrowRight, Smartphone, FileText, Search } from 'lucide-react';
+import { API_URL } from '../constants';
 
 interface LoginProps {
   onLogin: (user: User) => void;
@@ -29,7 +29,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin, users }) => {
     setError('');
 
     try {
-      const response = await fetch('https://api.gsacreditus.com.br/api/auth/login', {
+      const response = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

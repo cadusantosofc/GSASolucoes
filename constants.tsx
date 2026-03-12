@@ -55,3 +55,6 @@ export const AVAILABLE_ICONS = [
   { id: 'AlertCircle', icon: <AlertCircle /> },
   { id: 'MoreHorizontal', icon: <MoreHorizontal /> }
 ];
+
+// Use VITE_API_URL do .env (Vite prefix)
+export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
