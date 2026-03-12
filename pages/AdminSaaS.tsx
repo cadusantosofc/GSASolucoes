@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { User, Company } from '../types';
-import { ICONS } from '../constants';
+import { ICONS, API_URL } from '../constants';
 import { Users, Building2, Wallet, Plus, Settings2 } from 'lucide-react';
 
 interface AdminSaaSProps {
@@ -50,7 +50,7 @@ export const AdminSaaS: React.FC<AdminSaaSProps> = ({ users, setUsers, companies
       if (!token) return;
 
       try {
-        const res = await fetch('https://api.gsacreditus.com.br/api/users/list', {
+        const res = await fetch(`${API_URL}/users/list`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.ok) {
@@ -86,7 +86,7 @@ export const AdminSaaS: React.FC<AdminSaaSProps> = ({ users, setUsers, companies
     const token = localStorage.getItem('gsa_token');
 
     try {
-      const res = await fetch('https://api.gsacreditus.com.br/api/auth/register', {
+      const res = await fetch(`${API_URL}/auth/register`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

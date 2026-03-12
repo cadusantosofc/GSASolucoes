@@ -117,7 +117,7 @@ export const AdminBases: React.FC<AdminBasesProps> = ({ bases, setBases, modules
 
       if (editingBase) {
         // Editar base existente
-        const response = await fetch(`https://api.gsacreditus.com.br/api/bases/${editingBase.id}`, {
+        const response = await fetch(`${API_URL}/bases/${editingBase.id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -182,7 +182,7 @@ export const AdminBases: React.FC<AdminBasesProps> = ({ bases, setBases, modules
 
     try {
       const token = localStorage.getItem('gsa_token');
-      const response = await fetch(`https://api.gsacreditus.com.br/api/bases/${baseToDelete.id}`, {
+      const response = await fetch(`${API_URL}/bases/${baseToDelete.id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`

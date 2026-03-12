@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { User, Company } from '../types';
 import { User as UserIcon, Building2, Smartphone, Mail, Lock, CheckCircle2, FileText } from 'lucide-react';
-
+import { API_URL } from '../constants';
 interface RegisterProps {
   onRegister: (user: User) => void;
   setUsers: React.Dispatch<React.SetStateAction<User[]>>;
@@ -36,7 +36,7 @@ export const Register: React.FC<RegisterProps> = ({ onRegister, setUsers, setCom
     setError('');
 
     try {
-      const response = await fetch('https://api.gsacreditus.com.br/api/auth/register', {
+      const response = await fetch(`${API_URL}/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
