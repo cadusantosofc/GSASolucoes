@@ -151,6 +151,7 @@ EOF
     show_step 5 "DATABASE"
     npx prisma generate
     npx prisma db push --accept-data-loss
+    npx prisma db seed
 
     show_step 6 "BUILD BACKEND"
     pnpm run build
@@ -233,6 +234,7 @@ executar_atualizar() {
     cd "$PROJECT_DIR/backend"
     pnpm install
     npx prisma generate
+    npx prisma db seed
     pnpm run build
     
     print_status "Atualizando dependências e build do Frontend..."

@@ -10,6 +10,9 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev"
   },
+  "prisma": {
+    "seed": "npx ts-node prisma/seed.ts"
+  },
   "dependencies": {
     "@prisma/client": "^5.10.2",
     "axios": "^1.13.4",
