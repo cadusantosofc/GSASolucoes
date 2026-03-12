@@ -248,7 +248,7 @@ EOF
     pnpm install
     npx prisma generate
     npx prisma db push --accept-data-loss
-    npx prisma db seed
+    # NÃO roda seed aqui para não resetar dados de produção
     pnpm run build
     
     print_status "Atualizando dependências e build do Frontend..."
