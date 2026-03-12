@@ -146,7 +146,7 @@ const App: React.FC = () => {
                 onClose={() => setIsSidebarOpen(false)}
                 onLogout={handleLogout}
               />
-              <main className="flex-1 lg:ml-64 w-full min-w-0 transition-all duration-300">
+              <main className="flex-1 lg:pl-64 w-full min-w-0 transition-all duration-300">
                 <header className="lg:hidden flex items-center justify-between p-4 bg-[#0a0a0a] border-b border-neutral-900 sticky top-0 z-40">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-black text-sm">G</div>
