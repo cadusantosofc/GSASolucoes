@@ -116,7 +116,8 @@ if [ -d "$PROJECT_DIR/.git" ]; then
     git pull https://$GITHUB_TOKEN@$REPO_URL
 else
     print_status "Clonando repositório para $PROJECT_DIR..."
-    rm -rf "$PROJECT_DIR" # Limpa se não for git para evitar erro no clone
+    cd / # Move para fora para evitar erro de diretório deletado
+    rm -rf "$PROJECT_DIR"
     git clone https://$GITHUB_TOKEN@$REPO_URL "$PROJECT_DIR"
     cd "$PROJECT_DIR"
 fi
