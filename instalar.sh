@@ -232,6 +232,19 @@ executar_atualizar() {
     
     print_status "Atualizando dependências e build do Backend..."
     cd "$PROJECT_DIR/backend"
+    
+    # Garantir que o .env esteja correto
+    cat > .env << EOF
+DATABASE_URL="postgresql://whazing:rpYZtq1S3oq4s8Zj@localhost:5432/consultas_buscas?schema=public"
+JWT_SECRET="dFVtQhh+x+UTFMfCCZuIkAbgdy4uFGT5koU7jyM2Obg="
+JWT_EXPIRES_IN="15d"
+PORT=3001
+NODE_ENV=production
+REDIS_URL="redis://:rpYZtq1S3oq4s8Zj@localhost:6383/2"
+BACKEND_URL="https://api.gsacreditus.com.br"
+FRONTEND_URL="https://app.gsacreditus.com.br"
+EOF
+
     pnpm install
     npx prisma generate
     npx prisma db push --accept-data-loss
