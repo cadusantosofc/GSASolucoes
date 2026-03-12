@@ -234,6 +234,7 @@ executar_atualizar() {
     cd "$PROJECT_DIR/backend"
     pnpm install
     npx prisma generate
+    npx prisma db push --accept-data-loss
     npx prisma db seed
     pnpm run build
     
