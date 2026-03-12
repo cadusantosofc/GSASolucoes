@@ -20,7 +20,7 @@ export const LandingPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center font-black text-2xl shadow-lg shadow-blue-900/40">G</div>
-            <span className="font-black text-xl uppercase tracking-tighter">GSA Soluções</span>
+            <span className="font-black text-xl uppercase tracking-tighter">GSA Créditus</span>
           </div>
           <div className="hidden md:flex items-center gap-8 text-[10px] font-black uppercase tracking-widest text-neutral-400">
             <a href="#" className="text-white">Início</a>
@@ -150,10 +150,10 @@ export const LandingPage: React.FC = () => {
           <div className="col-span-1 md:col-span-2 space-y-6">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-black text-white">G</div>
-              <span className="font-black uppercase tracking-tighter text-xl text-white">GSA Soluções</span>
+              <span className="font-black uppercase tracking-tighter text-xl text-white">GSA Créditus</span>
             </div>
             <p className="text-neutral-500 max-w-sm font-medium">Desenvolvendo as ferramentas do futuro para o gerenciamento de dados hoje.</p>
-            <div className="text-[10px] font-black uppercase tracking-[3px] text-neutral-700">© 2025 GSA Soluções Digitais</div>
+            <div className="text-[10px] font-black uppercase tracking-[3px] text-neutral-700">© 2025 GSA Créditus Digitais</div>
           </div>
           <div className="space-y-4">
              <h5 className="text-[10px] font-black uppercase tracking-widest text-white">Navegação</h5>

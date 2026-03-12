@@ -11,7 +11,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({ type }) => {
   const content = {
     terms: {
       title: "Termos de Uso",
-      text: `Ao acessar e utilizar o sistema GSA Soluções, você concorda em cumprir estes termos. O sistema é destinado exclusivamente ao uso profissional por pessoas físicas devidamente cadastradas e empresas parceiras.
+      text: `Ao acessar e utilizar o sistema GSA Créditus, você concorda em cumprir estes termos. O sistema é destinado exclusivamente ao uso profissional por pessoas físicas devidamente cadastradas e empresas parceiras.
       
       1. LICENÇA DE USO: Concedemos uma licença limitada e intransferível para acessar nossas ferramentas de busca.
       2. RESTRIÇÕES: É proibida a revenda ou sublicenciamento do acesso, bem como o uso de robôs ou scripts para consultas em massa sem autorização prévia.
@@ -20,7 +20,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({ type }) => {
     },
     privacy: {
       title: "Política de Privacidade",
-      text: `A GSA Soluções preza pela proteção dos seus dados. Coletamos informações como CPF/CNPJ, E-mail e Telefone exclusivamente para fins de autenticação, faturamento e segurança da conta.
+      text: `A GSA Créditus preza pela proteção dos seus dados. Coletamos informações como CPF/CNPJ, E-mail e Telefone exclusivamente para fins de autenticação, faturamento e segurança da conta.
       
       1. COLETA: Seus dados são armazenados em servidores seguros com criptografia de ponta a ponta.
       2. COMPARTILHAMENTO: Nunca vendemos seus dados para terceiros. Informações de consulta são mantidas em sigilo absoluto.
@@ -36,7 +36,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({ type }) => {
     },
     responsibility: {
       title: "Termo de Responsabilidade",
-      text: `O sistema GSA Soluções atua como um agregador de dados de diversas fontes e APIs.
+      text: `O sistema GSA Créditus atua como um agregador de dados de diversas fontes e APIs.
       
       1. VERACIDADE: Não nos responsabilizamos pela veracidade das informações retornadas pelas APIs de terceiros, atuando apenas como intermediário técnico.
       2. USO INDEVIDO: O usuário assume total responsabilidade civil e criminal pelo uso dos dados obtidos na plataforma, devendo respeitar a LGPD e demais legislações vigentes.
@@ -55,7 +55,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({ type }) => {
           </Link>
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-black text-white">G</div>
-            <span className="font-black text-sm uppercase tracking-tighter">GSA Soluções</span>
+            <span className="font-black text-sm uppercase tracking-tighter">GSA Créditus</span>
           </div>
         </div>
       </nav>
@@ -89,7 +89,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({ type }) => {
       </main>
 
       <footer className="py-10 border-t border-neutral-900 text-center text-neutral-600 text-[10px] font-black uppercase tracking-[4px]">
-        GSA Soluções Digitais • Segurança e Transparência
+        GSA Créditus Digitais • Segurança e Transparência
       </footer>
     </div>
   );

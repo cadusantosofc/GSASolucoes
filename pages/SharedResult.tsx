@@ -97,7 +97,7 @@ export const SharedResult: React.FC<SharedResultProps> = ({ sharedLinks, history
         </div>
 
         <div className="pt-6 border-t border-neutral-900 text-center">
-          <p className="text-neutral-600 text-[10px] font-bold uppercase tracking-[4px]">GSA SOLUÇÕES • SISTEMA DE BUSCAS SEGURO</p>
+          <p className="text-neutral-600 text-[10px] font-bold uppercase tracking-[4px]">GSA Créditus • SISTEMA DE BUSCAS SEGURO</p>
         </div>
       </div>
     </div>

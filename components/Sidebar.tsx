@@ -142,7 +142,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ user: initialUser, balance: in
               <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center font-black text-2xl text-white shadow-xl shadow-blue-900/20">G</div>
               <div className="flex flex-col">
                 <div className="flex items-center gap-1 group cursor-pointer" onClick={() => isSuper && setIsCompanyMenuOpen(!isCompanyMenuOpen)}>
-                  <h1 className="text-sm font-black text-white uppercase tracking-tighter">GSA Soluções</h1>
+                  <h1 className="text-sm font-black text-white uppercase tracking-tighter">GSA Créditus</h1>
                   {isSuper && (
                     <div ref={companyMenuRef} className="relative">
                       <ChevronDown size={14} className={`text-blue-500 transition-transform ${isCompanyMenuOpen ? 'rotate-180' : ''}`} />

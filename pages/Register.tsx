@@ -75,7 +75,7 @@ export const Register: React.FC<RegisterProps> = ({ onRegister, setUsers, setCom
          <div className="bg-neutral-900/50 p-10 md:p-16 flex flex-col justify-between space-y-12">
             <div className="flex items-center gap-3">
                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-black text-sm">G</div>
-               <span className="text-white font-black uppercase tracking-tighter text-sm">GSA Soluções</span>
+               <span className="text-white font-black uppercase tracking-tighter text-sm">GSA Créditus</span>
             </div>
 
             <div className="space-y-6">
@@ -96,7 +96,7 @@ export const Register: React.FC<RegisterProps> = ({ onRegister, setUsers, setCom
                </div>
             </div>
 
-            <div className="text-neutral-600 text-[10px] font-black uppercase tracking-[3px]">© 2025 GSA Soluções Digitais</div>
+            <div className="text-neutral-600 text-[10px] font-black uppercase tracking-[3px]">© 2025 GSA Créditus Digitais</div>
          </div>
 
          <div className="p-10 md:p-16 space-y-8">

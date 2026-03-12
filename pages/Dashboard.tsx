@@ -36,7 +36,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, balance, modules, ba
   return (
     <div className="space-y-6 md:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div>
-        <h2 className="text-2xl md:text-3xl font-black text-white mb-2 uppercase tracking-tighter">GSA Soluções - Painel</h2>
+        <h2 className="text-2xl md:text-3xl font-black text-white mb-2 uppercase tracking-tighter">GSA Créditus - Painel</h2>
         <p className="text-neutral-500 text-sm md:text-base">Confira o resumo das suas atividades e saldo hoje.</p>
       </div>
 

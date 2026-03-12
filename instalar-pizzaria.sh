@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ========================================
-# INSTALADOR AUTOMÁTICO - SISTEMA GSA SOLUÇÕES
+# INSTALADOR AUTOMÁTICO - SISTEMA GSA Créditus
 # COMPATÍVEL COM UBUNTU 22.04+ / DEBIAN 11+
 # ========================================
 

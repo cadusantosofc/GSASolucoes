@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ========================================
-# INSTALADOR AUTOMÁTICO - SISTEMA GSA SOLUÇÕES
+# INSTALADOR AUTOMÁTICO - SISTEMA GSA Créditus
 # COMPATÍVEL COM UBUNTU 22.04+ / DEBIAN 11+
 # ========================================
 
@@ -280,7 +280,7 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 clear
-print_header "SISTEMA GSA SOLUÇÕES - CONSULTAS"
+print_header "SISTEMA GSA Créditus - CONSULTAS"
 echo -e "Escolha uma opção:"
 echo -e "${GREEN}1)${NC} Instalar do Zero (Ubuntu 24)"
 echo -e "${GREEN}2)${NC} Atualizar Sistema Existente"

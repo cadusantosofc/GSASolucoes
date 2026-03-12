@@ -158,7 +158,7 @@ const App: React.FC = () => {
                 <header className="lg:hidden flex items-center justify-between p-4 bg-[#0a0a0a] border-b border-neutral-900 sticky top-0 z-40">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-black text-sm">G</div>
-                    <span className="font-black tracking-tighter text-white uppercase text-sm">GSA Soluções</span>
+                    <span className="font-black tracking-tighter text-white uppercase text-sm">GSA Créditus</span>
                   </div>
                   <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-neutral-400 hover:text-white"><Menu /></button>
                 </header>
