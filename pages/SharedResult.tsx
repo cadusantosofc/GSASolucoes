@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { SharedLink, SearchHistory } from '../types';
 import { DataRenderer } from '../components/DataRenderer';
 import { printConsultation } from '../utils/printHelper';
+import { API_URL } from '../constants';
 import { Printer, Download } from 'lucide-react';
 
 interface SharedResultProps {
@@ -13,11 +14,53 @@ interface SharedResultProps {
 export const SharedResult: React.FC<SharedResultProps> = ({ sharedLinks, history }) => {
   const { shareId } = useParams();
   const [timeLeft, setTimeLeft] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [fetchedData, setFetchedData] = useState<SearchHistory | null>(null);
+  const [fetchedLink, setFetchedLink] = useState<SharedLink | null>(null);
   
-  const link = sharedLinks.find(l => l.id === shareId);
-  const data = history.find(h => h.id === link?.historyId);
+  const link = sharedLinks.find(l => l.id === shareId) || fetchedLink;
+  const data = history.find(h => h.id === link?.historyId) || fetchedData;
   
-  const isExpired = link ? Date.now() > link.expiresAt : true;
+  const isExpired = link ? Date.now() > link.expiresAt : false;
+
+  useEffect(() => {
+    const fetchSharedData = async () => {
+      if (!shareId) return;
+      
+      try {
+        const response = await fetch(`${API_URL}/history/shared/${shareId}`);
+        if (response.ok) {
+          const linkData = await response.json(); // Retorna o objeto SharedLink completo
+          const historyItem = linkData.searchHistory;
+          
+          setFetchedData({
+            ...historyItem,
+            resultData: historyItem.result,
+            doc: historyItem.query,
+            userName: historyItem.user?.name || historyItem.companyName || 'GSA Creditus'
+          });
+
+          setFetchedLink({
+            id: linkData.token,
+            historyId: linkData.searchHistoryId,
+            expiresAt: new Date(linkData.expiresAt).getTime(),
+            createdAt: new Date(linkData.createdAt).getTime(),
+            creatorName: historyItem.user?.name || 'GSA Creditus'
+          } as any);
+        }
+      } catch (error) {
+        console.error('Erro ao buscar link compartilhado:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (shareId) {
+      fetchSharedData();
+    } else {
+      setLoading(false);
+    }
+  }, [shareId]);
 
   useEffect(() => {
     if (!link || isExpired) return;
@@ -37,6 +80,15 @@ export const SharedResult: React.FC<SharedResultProps> = ({ sharedLinks, history
 
     return () => clearInterval(timer);
   }, [link, isExpired]);
+
+  if (loading) {
+    return (
+      <div className="min-h-[80vh] flex flex-col items-center justify-center space-y-4">
+        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-neutral-500 font-bold uppercase tracking-widest text-xs">Carregando consulta...</p>
+      </div>
+    );
+  }
 
   if (!link || isExpired) {
     return (
@@ -97,7 +149,7 @@ export const SharedResult: React.FC<SharedResultProps> = ({ sharedLinks, history
         </div>
 
         <div className="pt-6 border-t border-neutral-900 text-center">
-          <p className="text-neutral-600 text-[10px] font-bold uppercase tracking-[4px]">GSA Créditus • SISTEMA DE BUSCAS SEGURO</p>
+          <p className="text-neutral-600 text-[10px] font-bold uppercase tracking-[4px]">GSA Creditus • SISTEMA DE BUSCAS SEGURO</p>
         </div>
       </div>
     </div>

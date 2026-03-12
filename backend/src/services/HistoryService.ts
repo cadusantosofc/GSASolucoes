@@ -104,7 +104,13 @@ export const getSharedLink = async (token: string) => {
   const sharedLink = await prisma.sharedLink.findUnique({
     where: { token },
     include: {
-      searchHistory: true
+      searchHistory: {
+        include: {
+          user: {
+            select: { name: true }
+          }
+        }
+      }
     }
   });
 
@@ -127,7 +133,7 @@ export const getSharedLink = async (token: string) => {
     }
   });
 
-  return sharedLink.searchHistory;
+  return sharedLink;
 };
 
 export const revokeSharedLink = async (linkId: string, userId: string) => {

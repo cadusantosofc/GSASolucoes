@@ -159,7 +159,7 @@ export const search = async (userId: string, baseId: string, document: string) =
       }
 
       // Registrar histórico
-      await HistoryService.createSearchHistory({
+      const historyRecord = await HistoryService.createSearchHistory({
         query: document,
         moduleSlug: base.module.slug,
         moduleName: base.module.name,
@@ -170,6 +170,11 @@ export const search = async (userId: string, baseId: string, document: string) =
         companyId: user.companyId,
         companyName: user.company?.name
       });
+
+      return {
+        ...result,
+        _historyId: historyRecord.id
+      };
     }
   }
 

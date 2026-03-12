@@ -73,9 +73,9 @@ export const ModuleDetail: React.FC<ModuleDetailProps> = ({ modules, bases, user
       // Atualizar saldo no frontend (opcional, pois o próximo poll do sidebar já vai atualizar)
       updateBalance(-selectedBase.cost);
       
-      // Histórico já é salvo no backend, mas podemos adicionar ao estado local se quisermos feedback instantâneo na lista (se houver)
+      // Histórico já é salvo no backend, usamos o ID real retornado para permitir compartilhamento imediato
       addHistory({
-        id: crypto.randomUUID(),
+        id: data._historyId || crypto.randomUUID(),
         userId: user.id,
         userName: user.name,
         companyName: undefined,

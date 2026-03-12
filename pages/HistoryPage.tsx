@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { SearchHistory, SharedLink, User } from '../types';
-import { ICONS } from '../constants';
+import { API_URL } from '../constants';
 import { X, Printer, Copy, Check, Share2, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
 import { DataRenderer } from '../components/DataRenderer';
 import { printConsultation } from '../utils/printHelper';
@@ -16,6 +16,7 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({ history, sharedLinks, 
   const [viewingResult, setViewingResult] = useState<SearchHistory | null>(null);
   const [activeShareLink, setActiveShareLink] = useState<{link: SharedLink, doc: string} | null>(null);
   const [copyFeedback, setCopyFeedback] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
   
   // Paginação
   const [currentPage, setCurrentPage] = useState(1);
@@ -31,7 +32,8 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({ history, sharedLinks, 
     setCurrentPage(pageNumber);
   };
 
-  const handleOpenShare = (item: SearchHistory) => {
+  const handleOpenShare = async (item: SearchHistory) => {
+    // Verificar se já existe link ativo localmente (token é o ID no banco)
     const existingLink = sharedLinks.find(l => l.historyId === item.id && l.expiresAt > Date.now());
     
     if (existingLink) {
@@ -39,21 +41,44 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({ history, sharedLinks, 
       return;
     }
 
-    const newLink: SharedLink = {
-      id: crypto.randomUUID(),
-      historyId: item.id,
-      creatorName: currentUser.name,
-      createdAt: Date.now(),
-      expiresAt: Date.now() + (24 * 60 * 60 * 1000)
-    };
+    setIsSharing(true);
+    try {
+      const token = localStorage.getItem('gsa_token');
+      const response = await fetch(`${API_URL}/history/share`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ historyId: item.id })
+      });
 
-    setSharedLinks(prev => [...prev, newLink]);
-    setActiveShareLink({ link: newLink, doc: item.doc });
+      if (!response.ok) throw new Error('Erro ao criar link');
+
+      const data = await response.json(); // Retorna { id, token, expiresAt, ... }
+      
+      const newLink: SharedLink = {
+        id: data.token, // Usamos o token como identificador para a URL
+        historyId: item.id,
+        creatorName: currentUser.name,
+        createdAt: new Date(data.createdAt).getTime(),
+        expiresAt: new Date(data.expiresAt).getTime()
+      };
+
+      setSharedLinks(prev => [...prev, newLink]);
+      setActiveShareLink({ link: newLink, doc: item.doc });
+    } catch (error) {
+      console.error('Erro ao compartilhar:', error);
+      alert('Não foi possível gerar o link de compartilhamento.');
+    } finally {
+      setIsSharing(false);
+    }
   };
 
   const copyToClipboard = () => {
     if (!activeShareLink) return;
-    const fullUrl = `${window.location.origin}/#/share/${activeShareLink.link.id}`;
+    // Pega o window.location.origin e adiciona o path correto
+    const fullUrl = `${window.location.origin}${window.location.pathname}#/share/${activeShareLink.link.id}`;
     navigator.clipboard.writeText(fullUrl);
     setCopyFeedback(true);
     setTimeout(() => setCopyFeedback(false), 2000);
@@ -120,10 +145,15 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({ history, sharedLinks, 
                       {item.status === 'success' && (
                         <button 
                           onClick={() => handleOpenShare(item)}
-                          className="px-3 py-2 bg-emerald-600/10 text-emerald-500 rounded-lg text-[10px] font-black hover:bg-emerald-600 hover:text-white transition-all uppercase tracking-widest flex items-center gap-2"
+                          disabled={isSharing}
+                          className="px-3 py-2 bg-emerald-600/10 text-emerald-500 rounded-lg text-[10px] font-black hover:bg-emerald-600 hover:text-white transition-all uppercase tracking-widest flex items-center gap-2 disabled:opacity-50"
                           title="Compartilhar Link"
                         >
-                          <Share2 className="w-3 h-3" />
+                          {isSharing ? (
+                            <div className="w-3 h-3 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+                          ) : (
+                            <Share2 className="w-3 h-3" />
+                          )}
                           Compartilhar
                         </button>
                       )}

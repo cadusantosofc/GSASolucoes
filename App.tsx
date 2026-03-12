@@ -60,15 +60,28 @@ const App: React.FC = () => {
           if (impId) headers['X-Impersonate-Company-Id'] = impId;
 
           // Paralelizar requisições para performance
-          const [modsRes, basesRes, userRes] = await Promise.all([
+          const [modsRes, basesRes, userRes, historyRes] = await Promise.all([
              fetch(`${API_URL}/modules`, { headers }),
              fetch(`${API_URL}/bases`, { headers }),
-             // Usar /api/users/me conforme userRoutes
-             fetch(`${API_URL}/users/me`, { headers })
+             fetch(`${API_URL}/users/me`, { headers }),
+             fetch(`${API_URL}/history/my`, { headers })
           ]);
 
           if (modsRes.ok) setModules(await modsRes.json());
           if (basesRes.ok) setBases(await basesRes.json());
+          if (historyRes.ok) {
+            const historyData = await historyRes.json();
+            // Mapear timestamp se necessário (backend retorna createdAt)
+            const mappedHistory = historyData.map((h: any) => ({
+              ...h,
+              timestamp: new Date(h.createdAt).getTime(),
+              userName: h.user?.name || h.userName || currentUser?.name,
+              resultData: h.result,
+              doc: h.query,
+              status: 'success'
+            }));
+            setHistory(mappedHistory);
+          }
           
           // Atualizar usuário atual com dados frescos (saldo, etc)
           if (userRes.ok) {
@@ -158,7 +171,7 @@ const App: React.FC = () => {
                 <header className="lg:hidden flex items-center justify-between p-4 bg-[#0a0a0a] border-b border-neutral-900 sticky top-0 z-40">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-black text-sm">G</div>
-                    <span className="font-black tracking-tighter text-white uppercase text-sm">GSA Créditus</span>
+                    <span className="font-black tracking-tighter text-white uppercase text-sm">GSA Creditus</span>
                   </div>
                   <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-neutral-400 hover:text-white"><Menu /></button>
                 </header>
